@@ -65,8 +65,7 @@ class BreadthFirst(Strategy):
         :param initial_puzzle: Puzzle
         """
         self.start = initial_puzzle
-        self.left=None
-        self.right=None
+      
 
 
     def __str__(self):
@@ -102,6 +101,45 @@ class BreadthFirst(Strategy):
         print('Number Of Nodes Generated',len(queue))
         print('Depth Of Solution Found',depth)
         self.solution = path
+
+
+# class IDDFS(Strategy): """DOES NOT WORK"""
+    
+#     def __init__(self, initial_puzzle):
+#         """
+#         :param initial_puzzle: Puzzle
+#         """
+#         self.start = initial_puzzle
+        
+
+
+#     def __str__(self):
+#         return 'IDDFS'
+
+#     def do_algorithm(self):
+       
+#         depth = 0
+#         path = None
+#         while True:
+#             if DFS(path,goal,depth):
+#                 depth+=1
+
+#         def DFS(path,goal,depth):
+#             current = path[-1]
+#             if current.label == goal:
+#                 return path
+#             if depth <= 0:
+#                 return None
+#             for edge in current.children:
+#                 new_path = list(path)
+#                 new_path.append(edge.path)
+#                 result = DFS(new_path, goal, depth - 1)
+#                 if result is not None:
+#                     return result
+  
+        
+       
+       
 
 
        
