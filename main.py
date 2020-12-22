@@ -1,20 +1,53 @@
+from sys import getsizeof
+import globals
+import psutil 
+import time
+import os
+"""psutil is a module providing an interface for retrieving information on all running processes and system utilization"""
+
 class PuzzleSolver:
+     
     def __init__(self, strategy):
         """
         :param strategy: Strategy
         """
         self._strategy = strategy
 
+    """function to calculate time execution of BFS and Astar"""
+    def time(self): 
+         bfs_start_time = time.time()
+         BreadthFirst(self)
+         bfs_time = time.time() - bfs_start_time
+      
+         manhattan_astar_start_time = time.time()
+         AStar(self)
+         manhattan_astar_time = time.time() - manhattan_astar_start_time
+       
+         print(f'bfs time execution: {bfs_time * 1000}','ms')
+         print(f'Astar time execution: {manhattan_astar_time * 1000}','ms')
+
+    "fucttion to calculate memory space of BFS and Astar"
+    def memory(self): 
+        process = psutil.Process(os.getpid())
+        memory = process.memory_info().rss
+        memory_bfs = memory / 1000000
+        globals.memory_bfs = memory_bfs
+        print(f'bfs memory required: {globals.memory_bfs}')
+        print(f'Manhattan A* search memory required: {globals.memory_manhattan_astar}')
+   
     def print_performance(self):
         print(f'{self._strategy} - Expanded Nodes: {self._strategy.num_expanded_nodes}')
-
+       
     def print_solution(self):
         print('Solution:')
         for p in self._strategy.solution:
             print(p)
+            
 
     def run(self):
         self._strategy.do_algorithm()
+
+        
 
 
 class Strategy:
@@ -22,15 +55,19 @@ class Strategy:
     solution = None
 
     def do_algorithm(self):
-        raise NotImplemented
+     raise NotImplemented
 
 
 class BreadthFirst(Strategy):
+    
     def __init__(self, initial_puzzle):
         """
         :param initial_puzzle: Puzzle
         """
         self.start = initial_puzzle
+        self.left=None
+        self.right=None
+
 
     def __str__(self):
         return 'Breadth First'
@@ -40,7 +77,8 @@ class BreadthFirst(Strategy):
         expanded = []
         num_expanded_nodes = 0
         path = None
-
+        depth=0
+       
         while queue:
             path = queue[0]
             queue.pop(0)  # dequeue (FIFO)
@@ -53,15 +91,22 @@ class BreadthFirst(Strategy):
                 if move.position in expanded:
                     continue
                 queue.append(path + [move])  # add new path at the end of the queue
+                depth+=1
 
             expanded.append(end_node.position)
             num_expanded_nodes += 1
 
             if end_node.position == end_node.PUZZLE_END_POSITION:
                 break
-
         self.num_expanded_nodes = num_expanded_nodes
+        print('Number Of Nodes Generated',len(queue))
+        print('Depth Of Solution Found',depth)
         self.solution = path
+
+
+       
+        
+
 
 
 class AStar(Strategy):
@@ -83,7 +128,7 @@ class AStar(Strategy):
         expanded = []
         num_expanded_nodes = 0
         path = None
-
+        depth=0 #Calculating Depth 
         while queue:
             i = 0
             for j in range(1, len(queue)):
@@ -105,10 +150,12 @@ class AStar(Strategy):
                 new_path = [path[0] + self._calculate_new_heuristic(move, end_node)] + path[1:] + [move]
                 queue.append(new_path)
                 expanded.append(end_node.position)
+                depth+=1
 
             num_expanded_nodes += 1
-
         self.num_expanded_nodes = num_expanded_nodes
+        print('Number Of Nodes Generated',len(queue))
+        print('Depth Of Solution Found',depth)
         self.solution = path[1:]
 
 
@@ -126,14 +173,14 @@ class Puzzle:
         """
         Print in console as a matrix
         """
-        puzzle_string = '—' * 13 + '\n'
+        puzzle_string = '*' * 13 + '\n'
         for i in range(self.PUZZLE_NUM_ROWS):
             for j in range(self.PUZZLE_NUM_COLUMNS):
-                puzzle_string += '│{0: >2}'.format(str(self.position[i][j]))
+                puzzle_string += '*{0: >2}'.format(str(self.position[i][j]))
                 if j == self.PUZZLE_NUM_COLUMNS - 1:
-                    puzzle_string += '│\n'
+                    puzzle_string += '*\n'
 
-        puzzle_string += '—' * 13 + '\n'
+        puzzle_string += '*' * 13 + '\n'
         return puzzle_string
 
     def _generate_end_position(self):
@@ -231,3 +278,10 @@ if __name__ == '__main__':
         p.run()
         p.print_performance()
         p.print_solution()
+        # p.memory()
+        # p.time()
+    C = PuzzleSolver((puzzle))
+    C.memory()
+    C.time()
+    
+  
